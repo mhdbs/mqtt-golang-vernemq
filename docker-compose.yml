@@ -1,0 +1,33 @@
+version: "3"
+services:
+
+  vernemq:
+    image: erlio/docker-vernemq
+    volumes:
+      - ./config/v/vernemq.conf:/etc/vernemq/vernemq.conf 
+    ports:
+    - "1883:1883"
+    environment:
+      DOCKER_VERNEMQ_log.console.level: 'debug'
+    networks:
+     - webhooks
+
+  webhooks:
+    image: "websocket-iot"    
+    container_name: "webhooks"
+    env_file:
+     - app.env
+    build: './'
+    ports:
+     - '8000:8000'
+    expose:
+     - "8000"
+    depends_on:
+     - vernemq
+    networks:
+     - vernemq
+   
+networks:
+    webhooks:
+      # external: true
+    vernemq:
